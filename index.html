@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="color-scheme" content="light only">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>curo.to — bring your clients back</title>
+  <link rel="preconnect" href="https://api.fontshare.com" />
+  <link href="https://api.fontshare.com/v2/css?f[]=satoshi@300,400,500,700,900&display=swap" rel="stylesheet" />
+  <style>
+    :root { color-scheme: light only; }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #FFFFFF;
+      --ink: #111110;
+      --muted: #888580;
+      --subtle: #C8C4BE;
+      --card: #FFFFFF;
+      --border: #E2DED9;
+      --accent: #111110;
+      --tag: #6B6860;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    html, body {
+      background: #FFFFFF !important;
+      color: #111110 !important;
+    }
+    body {
+      font-family: 'Satoshi', sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+      font-size: 16px;
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 20px 48px;
+      background: rgba(245,243,240,0.88);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+    }
+    .logo {
+      font-family: 'Satoshi', sans-serif;
+      font-weight: 900;
+      font-size: 20px;
+      letter-spacing: -0.8px;
+      color: var(--ink);
+      text-decoration: none;
+      display: flex; align-items: center; gap: 6px;
+    }
+    .logo-dot { width: 6px; height: 6px; background: var(--ink); border-radius: 50%; margin-top: 1px; }
+    .nav-cta {
+      background: var(--ink); color: #fff;
+      border: none; border-radius: 8px;
+      padding: 10px 22px;
+      font-family: 'Satoshi', sans-serif;
+      font-size: 14px; font-weight: 500;
+      cursor: pointer; transition: opacity 0.2s;
+      text-decoration: none; letter-spacing: -0.2px;
+    }
+    .nav-cta:hover { opacity: 0.75; }
+
+    /* ── HERO ── */
+    .hero {
+      min-height: 100vh;
+      display: flex; flex-direction: column; justify-content: center;
+      padding: 120px 48px 80px;
+      max-width: 960px; margin: 0 auto;
+    }
+    .hero-eyebrow {
+      display: inline-flex; align-items: center; gap: 10px;
+      font-size: 12px; font-weight: 500; letter-spacing: 1.5px;
+      text-transform: uppercase; color: var(--tag);
+      margin-bottom: 36px;
+      animation: fadeUp 0.5s ease both;
+    }
+    .hero-eyebrow::before {
+      content: '';
+      display: block; width: 24px; height: 1px;
+      background: var(--subtle);
+    }
+
+    h1 {
+      font-family: 'Satoshi', sans-serif;
+      font-weight: 900;
+      font-size: clamp(52px, 8vw, 88px);
+      line-height: 0.97;
+      letter-spacing: -3px;
+      margin-bottom: 32px;
+      animation: fadeUp 0.5s 0.08s ease both;
+    }
+    h1 .outline {
+      -webkit-text-stroke: 1.5px var(--ink);
+      color: transparent;
+    }
+
+    .hero-sub {
+      font-size: clamp(16px, 1.8vw, 19px);
+      color: var(--muted);
+      max-width: 500px;
+      margin-bottom: 48px;
+      font-weight: 400;
+      line-height: 1.65;
+      animation: fadeUp 0.5s 0.16s ease both;
+    }
+
+    .hero-actions {
+      display: flex; gap: 12px; flex-wrap: wrap;
+      animation: fadeUp 0.5s 0.24s ease both;
+    }
+    .btn-primary {
+      background: var(--ink); color: #fff;
+      border: none; border-radius: 8px;
+      padding: 15px 30px;
+      font-family: 'Satoshi', sans-serif;
+      font-size: 15px; font-weight: 500; letter-spacing: -0.2px;
+      cursor: pointer; transition: opacity 0.2s, transform 0.15s;
+    }
+    .btn-primary:hover { opacity: 0.8; transform: translateY(-1px); }
+    .btn-ghost {
+      background: transparent; color: var(--ink);
+      border: 1px solid var(--border);
+      border-radius: 8px; padding: 15px 30px;
+      font-family: 'Satoshi', sans-serif;
+      font-size: 15px; font-weight: 500; letter-spacing: -0.2px;
+      cursor: pointer; transition: border-color 0.2s, transform 0.15s;
+    }
+    .btn-ghost:hover { border-color: var(--ink); transform: translateY(-1px); }
+
+    .hero-pain {
+      display: flex;
+      align-items: center;
+      gap: 32px;
+      margin-top: 72px;
+      padding-top: 40px;
+      border-top: 1px solid var(--border);
+      animation: fadeUp 0.5s 0.32s ease both;
+    }
+    .pain-num {
+      font-size: clamp(56px, 8vw, 88px);
+      font-weight: 900;
+      letter-spacing: -3px;
+      line-height: 1;
+      flex-shrink: 0;
+      color: var(--ink);
+    }
+    .pain-text { border-left: 1px solid var(--border); padding-left: 32px; }
+    .pain-main {
+      font-size: clamp(16px, 1.8vw, 20px);
+      font-weight: 600;
+      letter-spacing: -0.4px;
+      line-height: 1.3;
+      margin-bottom: 8px;
+    }
+    .pain-sub { font-size: 14px; color: var(--muted); line-height: 1.5; }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── SHARED ── */
+    section { padding: 108px 48px; }
+    .section-inner { max-width: 960px; margin: 0 auto; }
+    .section-tag {
+      font-size: 11px; font-weight: 500;
+      letter-spacing: 2px; text-transform: uppercase;
+      color: var(--tag); margin-bottom: 20px;
+    }
+    h2 {
+      font-family: 'Satoshi', sans-serif;
+      font-weight: 800;
+      font-size: clamp(30px, 4vw, 48px);
+      letter-spacing: -1.5px; line-height: 1.08;
+      margin-bottom: 16px;
+    }
+    .section-sub {
+      font-size: 17px; color: var(--muted);
+      max-width: 480px; line-height: 1.7;
+      margin-bottom: 60px; font-weight: 400;
+    }
+
+    /* ── HOW ── */
+    .how-bg { background: #fff; }
+    .steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px,1fr)); gap: 2px; }
+    .step-card {
+      padding: 40px 36px;
+      border: 1px solid var(--border);
+      transition: background 0.2s;
+    }
+    .step-card:hover { background: var(--bg); }
+    .step-num {
+      font-size: 11px; font-weight: 700; letter-spacing: 2px;
+      color: var(--subtle); margin-bottom: 32px;
+    }
+    .step-icon { font-size: 26px; margin-bottom: 18px; }
+    .step-title { font-size: 18px; font-weight: 700; letter-spacing: -0.4px; margin-bottom: 10px; }
+    .step-text { font-size: 14px; color: var(--muted); line-height: 1.65; }
+
+    /* ── DEMO ── */
+    .demo-section { background: #fff; }
+    .demo-grid {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 72px; align-items: center;
+    }
+    @media (max-width: 700px) { .demo-grid { grid-template-columns: 1fr; gap: 48px; } }
+
+    .phone-wrap { position: relative; }
+    .phone-mock {
+      background: #E5DDD5;
+      border-radius: 24px;
+      padding: 0;
+      max-width: 290px; margin: 0 auto;
+      overflow: hidden;
+      box-shadow: 0 32px 80px rgba(0,0,0,0.14), 0 0 0 1px rgba(0,0,0,0.06);
+    }
+    .phone-header {
+      display: flex; align-items: center; gap: 10px;
+      background: #075E54; padding: 14px 18px;
+    }
+    .phone-avatar {
+      width: 38px; height: 38px; background: #128C7E;
+      border-radius: 50%; display: flex; align-items: center;
+      justify-content: center; font-size: 17px;
+    }
+    .phone-name { color: #fff; font-size: 14px; font-weight: 600; }
+    .phone-status { color: rgba(255,255,255,0.55); font-size: 11px; }
+    .phone-body { padding: 16px; }
+    .msg {
+      background: #fff;
+      border-radius: 0 10px 10px 10px;
+      padding: 10px 13px;
+      font-size: 13.5px; line-height: 1.5;
+      margin-bottom: 6px;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.08);
+      max-width: 92%;
+      opacity: 0; transform: translateY(8px);
+      transition: opacity 0.4s ease, transform 0.4s ease;
+    }
+    .msg.visible { opacity: 1; transform: translateY(0); }
+    .msg-time { font-size: 11px; color: #999; margin-top: 4px; text-align: right; }
+
+    .demo-text h3 {
+      font-size: 26px; font-weight: 800; letter-spacing: -0.8px;
+      margin-bottom: 16px; line-height: 1.2;
+    }
+    .demo-text p { font-size: 15px; color: var(--muted); line-height: 1.7; margin-bottom: 20px; }
+    .check-list { list-style: none; }
+    .check-list li {
+      display: flex; align-items: flex-start; gap: 12px;
+      font-size: 15px; padding: 10px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .check-list li:last-child { border-bottom: none; }
+    .check-list li::before {
+      content: '→'; color: var(--subtle);
+      font-size: 13px; margin-top: 2px; flex-shrink: 0;
+    }
+
+    /* ── FOR WHO ── */
+    .forwho-bg { background: #fff; }
+    .who-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 1px; border: 1px solid var(--border);
+    }
+    .who-card {
+      padding: 28px 24px;
+      display: flex; flex-direction: column; gap: 8px;
+      background: var(--card);
+      transition: background 0.15s;
+      cursor: default;
+    }
+    .who-card:hover { background: var(--bg); }
+    .who-card .emoji { font-size: 22px; }
+    .who-card .who-name { font-size: 14px; font-weight: 600; letter-spacing: -0.2px; }
+
+    /* ── MVP PLAN ── */
+    .plan-section { background: var(--ink); color: #fff; }
+    .plan-section .section-tag { color: rgba(255,255,255,0.35); }
+    .plan-section h2 { color: #fff; }
+    .plan-section .section-sub { color: rgba(255,255,255,0.45); }
+    .single-plan {
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 20px;
+      padding: 56px;
+      max-width: 600px;
+      position: relative;
+      overflow: hidden;
+    }
+    .single-plan::before {
+      content: 'BETA';
+      position: absolute; top: 28px; right: 28px;
+      font-size: 10px; font-weight: 700; letter-spacing: 2px;
+      background: rgba(255,255,255,0.08);
+      color: rgba(255,255,255,0.4);
+      padding: 5px 10px; border-radius: 4px;
+    }
+    .plan-price-big {
+      font-size: 72px; font-weight: 900; letter-spacing: -4px;
+      line-height: 1; margin-bottom: 8px;
+    }
+    .plan-tagline { font-size: 16px; color: rgba(255,255,255,0.45); margin-bottom: 40px; }
+    .plan-features { list-style: none; margin-bottom: 40px; }
+    .plan-features li {
+      display: flex; align-items: center; gap: 12px;
+      padding: 13px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.07);
+      font-size: 15px; color: rgba(255,255,255,0.8);
+    }
+    .plan-features li:last-child { border-bottom: none; }
+    .plan-features li::before { content: '✓'; color: rgba(255,255,255,0.3); font-size: 13px; flex-shrink: 0; }
+    .plan-btn-w {
+      background: #fff; color: var(--ink);
+      border: none; border-radius: 10px; width: 100%;
+      padding: 16px; font-family: 'Satoshi', sans-serif;
+      font-size: 16px; font-weight: 700; letter-spacing: -0.3px;
+      cursor: pointer; transition: opacity 0.2s;
+    }
+    .plan-btn-w:hover { opacity: 0.85; }
+
+    /* ── WAITLIST ── */
+    .waitlist-bg { background: #fff; }
+    .waitlist-inner { max-width: 640px; }
+    .wl-form { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 0; }
+    .wl-input {
+      flex: 1; min-width: 220px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px; padding: 14px 18px;
+      font-family: 'Satoshi', sans-serif;
+      font-size: 15px; color: var(--ink);
+      outline: none; transition: border-color 0.2s;
+      letter-spacing: -0.2px;
+    }
+    .wl-input::placeholder { color: var(--subtle); }
+    .wl-input:focus { border-color: var(--ink); }
+    .wl-btn {
+      background: var(--ink); color: #fff;
+      border: none; border-radius: 8px;
+      padding: 14px 26px;
+      font-family: 'Satoshi', sans-serif;
+      font-size: 15px; font-weight: 600; letter-spacing: -0.2px;
+      cursor: pointer; transition: opacity 0.2s;
+      white-space: nowrap;
+      text-decoration: none; display: inline-block;
+    }
+    .wl-btn:hover { opacity: 0.75; }
+    .wl-success {
+      display: none; margin-top: 20px;
+      font-size: 15px; color: var(--tag);
+      font-weight: 500;
+    }
+    .wl-note { font-size: 13px; color: var(--subtle); margin-top: 14px; }
+
+    /* ── FOOTER ── */
+    footer {
+      background: var(--ink); color: rgba(255,255,255,0.3);
+      padding: 32px 48px; text-align: center; font-size: 13px;
+    }
+    footer strong { color: rgba(255,255,255,0.7); }
+
+    /* ── SLIDER TABS ── */
+    .msg-tabs {
+      display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap;
+    }
+    .msg-tab {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 100px; padding: 7px 16px;
+      font-family: 'Satoshi', sans-serif;
+      font-size: 13px; font-weight: 500;
+      cursor: pointer; transition: all 0.2s; color: var(--muted);
+    }
+    .msg-tab.active {
+      background: var(--ink); color: #fff; border-color: var(--ink);
+    }
+
+    /* ── REVEAL ── */
+    .reveal { opacity: 0; transform: translateY(24px); transition: opacity 0.55s ease, transform 0.55s ease; }
+    .reveal.visible { opacity: 1; transform: none; }
+
+    @media (max-width: 600px) {
+      nav { padding: 16px 20px; }
+      section { padding: 72px 20px; }
+      .hero { padding: 100px 20px 60px; }
+      .hero-stats { gap: 28px; }
+      .single-plan { padding: 36px 28px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="#" class="logo">
+    <svg height="22" viewBox="0 0 200 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <text x="0" y="30" font-family="Satoshi,Arial Black,sans-serif" font-weight="900" font-size="32" letter-spacing="-1.5" fill="#111110">curo.to</text>
+    </svg>
+  </a>
+  <a href="/dashboard.html" target="_blank" class="nav-cta">Get early access</a>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-eyebrow">Personalized client retention via WhatsApp</div>
+  <h1>Not a reminder.<br><span class="outline">A personal</span><br>touch.</h1>
+  <p class="hero-sub">
+    curo.to sends messages that make every client feel remembered — automatically. Not mass messaging. Personal at scale.
+  </p>
+  <div class="hero-actions">
+    <button class="btn-primary" onclick="window.open('/dashboard.html','_blank')">Start for free</button>
+    <button class="btn-ghost" onclick="document.getElementById('how').scrollIntoView({behavior:'smooth'})">How it works →</button>
+  </div>
+  <div class="hero-pain">
+    <div class="pain-num">~ 50%</div>
+    <div class="pain-text">
+      <div class="pain-main">of first-time clients never come back for a second visit</div>
+      <div class="pain-sub">Not because they're unhappy. Because nobody reached out.</div>
+    </div>
+  </div>
+</div>
+
+<!-- OWN DATA SECTION -->
+<section style="background: var(--ink); color: #fff;">
+  <div class="section-inner">
+    <div class="reveal" style="max-width: 680px;">
+      <h2 style="color:#fff; font-size: clamp(32px,5vw,56px); margin-bottom: 20px;">Most salons don't know<br>their clients.<br><span style="color:rgba(255,255,255,0.25);">curo.to changes that.</span></h2>
+      <p style="font-size:18px; color:rgba(255,255,255,0.45); line-height:1.7; max-width:520px; margin-bottom:36px;">Build your client base from day one. Every name, service, and visit — organized in one place. Only yours. Forever.</p>
+      <a href="/dashboard.html" target="_blank" class="wl-btn" style="background:#fff; color:var(--ink); display:inline-block;">Start building your base →</a>
+    </div>
+  </div>
+</section>
+
+<!-- HOW -->
+<section class="how-bg" id="how">
+  <div class="section-inner">
+    <div class="section-tag reveal">How it works</div>
+    <h2 class="reveal">Four steps.<br>Then — automatic.</h2>
+    <p class="section-sub reveal">curo.to doesn't just remind — it remembers. Every message feels like it was written by hand.</p>
+    <div class="steps">
+      <div class="step-card reveal">
+        <div class="step-num">01</div>
+        <div class="step-icon">🔗</div>
+        <div class="step-title">Connect your salon</div>
+        <div class="step-text">Import your client list. Add a note about each client — their stylist, service, one personal detail. Takes 5 minutes.</div>
+      </div>
+      <div class="step-card reveal">
+        <div class="step-num">02</div>
+        <div class="step-icon">🧠</div>
+        <div class="step-title">curo.to learns</div>
+        <div class="step-text">The algorithm finds the perfect moment to reach out based on each client's visit cycle and service type.</div>
+      </div>
+      <div class="step-card reveal">
+        <div class="step-num">03</div>
+        <div class="step-icon">✍️</div>
+        <div class="step-title">Personalizes the message</div>
+        <div class="step-text">Every message includes the client's name, their stylist, the exact service they had — and why now is the right time to come back.</div>
+      </div>
+      <div class="step-card reveal">
+        <div class="step-num">04</div>
+        <div class="step-icon">💬</div>
+        <div class="step-title">Client feels remembered</div>
+        <div class="step-text">Not a blast. Not a bot. A message that makes them think: "wow, they actually know me." They reply. They book. You do nothing.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- DEMO -->
+<section class="demo-section">
+  <div class="section-inner">
+    <div class="demo-grid">
+      <div class="phone-wrap">
+        <div class="section-tag reveal">Example messages</div>
+        <!-- Slider tabs -->
+        <div class="msg-tabs reveal">
+          <button class="msg-tab active" onclick="showMsg(0)">✂️ Hair</button>
+          <button class="msg-tab" onclick="showMsg(1)">💅 Nails</button>
+          <button class="msg-tab" onclick="showMsg(2)">🧖 Massage</button>
+        </div>
+        <!-- Phone 1 — Hair -->
+        <div class="phone-mock reveal msg-phone active" id="phone0">
+          <div class="phone-header">
+            <div class="phone-avatar">💇</div>
+            <div>
+              <div class="phone-name">Mira Studio</div>
+              <div class="phone-status">WhatsApp Business</div>
+            </div>
+          </div>
+          <div class="phone-body">
+            <div class="msg visible">
+              Hi Sarah! 👋<br><br>
+              Stylists recommend refreshing your haircut every 5–6 weeks for healthy hair. It's been exactly 5 weeks since Anna did your balayage — perfect timing to refresh before it starts to fade 😊<br><br>
+              Want to book? We have openings Tue 3pm or Thu 11am.
+              <div class="msg-time">14:32 ✓✓</div>
+            </div>
+          </div>
+        </div>
+        <!-- Phone 2 — Nails -->
+        <div class="phone-mock reveal msg-phone" id="phone1" style="display:none;">
+          <div class="phone-header">
+            <div class="phone-avatar">💅</div>
+            <div>
+              <div class="phone-name">Nail Bar Studio</div>
+              <div class="phone-status">WhatsApp Business</div>
+            </div>
+          </div>
+          <div class="phone-body">
+            <div class="msg visible">
+              Hi Helen! 👋<br><br>
+              It's been 3 weeks since your last manicure — that's usually when the gel starts lifting at the edges.<br><br>
+              Perfect timing for a touch-up 😊 We have openings this week — want me to book you in?
+              <div class="msg-time">14:32 ✓✓</div>
+            </div>
+          </div>
+        </div>
+        <!-- Phone 3 — Massage -->
+        <div class="phone-mock reveal msg-phone" id="phone2" style="display:none;">
+          <div class="phone-header">
+            <div class="phone-avatar">🧖</div>
+            <div>
+              <div class="phone-name">Zen Massage</div>
+              <div class="phone-status">WhatsApp Business</div>
+            </div>
+          </div>
+          <div class="phone-body">
+            <div class="msg visible">
+              Hi Nancy! 👋<br><br>
+              It's been 4 weeks since your last massage — that's usually when tension starts building up again in the shoulders and neck.<br><br>
+              Your body is probably ready for another session 😊 We have openings this week — want me to book you in?
+              <div class="msg-time">14:32 ✓✓</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="demo-text reveal">
+        <h3>Messages that make clients think:<br><em style="font-style:italic; color:var(--muted);">"Wow, they actually know me."</em></h3>
+        <p>Every message includes the client's name, their stylist, the exact service — and a real reason why now is the right time to come back.</p>
+        <ul class="check-list">
+          <li>Named stylist and specific service</li>
+          <li>Exact weeks since last visit</li>
+          <li>Professional reason to return now</li>
+          <li>Specific available slots</li>
+          <li>Automatic follow-up if no reply</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- MANIFESTO -->
+<section style="background: var(--ink); color: #fff;">
+  <div class="section-inner">
+    <div class="section-tag reveal" style="color: rgba(255,255,255,0.3);">Our philosophy</div>
+    <h2 class="reveal" style="color:#fff; max-width: 700px;">Mass messaging is dead.<br>Personal is the new scale.</h2>
+    <p class="section-sub reveal" style="color:rgba(255,255,255,0.45); max-width: 560px;">
+      Your clients don't want reminders. They want to feel remembered. There's a difference — and it's everything.
+    </p>
+    <div class="steps reveal" style="margin-top: 0;">
+      <div class="step-card reveal" style="background: rgba(255,255,255,0.04); border-color: rgba(255,255,255,0.08);">
+        <div class="step-num" style="color:rgba(255,255,255,0.2);">Knowledge</div>
+        <div class="step-title" style="color:#fff;">We know your client</div>
+        <div class="step-text" style="color:rgba(255,255,255,0.45);">Their name, stylist, service, and how long it's been. Every detail matters.</div>
+      </div>
+      <div class="step-card reveal" style="background: rgba(255,255,255,0.04); border-color: rgba(255,255,255,0.08);">
+        <div class="step-num" style="color:rgba(255,255,255,0.2);">Care</div>
+        <div class="step-title" style="color:#fff;">We write with intent</div>
+        <div class="step-text" style="color:rgba(255,255,255,0.45);">Not "book now". A real reason why this moment is right for them specifically.</div>
+      </div>
+      <div class="step-card reveal" style="background: rgba(255,255,255,0.04); border-color: rgba(255,255,255,0.08);">
+        <div class="step-num" style="color:rgba(255,255,255,0.2);">Respect</div>
+        <div class="step-title" style="color:#fff;">We never pressure</div>
+        <div class="step-text" style="color:rgba(255,255,255,0.45);">One warm message. No urgency, no discounts, no spam. Just genuine care.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOR WHO -->
+<section class="forwho-bg">
+  <div class="section-inner">
+    <div class="section-tag reveal">Who it's for</div>
+    <h2 class="reveal">For any business<br>built on repeat clients</h2>
+    <p class="section-sub reveal">If clients come back to you — but not as often as they could — curo.to is for you.</p>
+    <div class="who-grid reveal">
+      <div class="who-card"><span class="emoji">✂️</span><span class="who-name">Barbershops</span></div>
+      <div class="who-card"><span class="emoji">💅</span><span class="who-name">Nail salons</span></div>
+      <div class="who-card"><span class="emoji">💇‍♀️</span><span class="who-name">Hair salons</span></div>
+      <div class="who-card"><span class="emoji">🧖</span><span class="who-name">Spa & massage</span></div>
+      <div class="who-card"><span class="emoji">🦷</span><span class="who-name">Dentistry</span></div>
+      <div class="who-card"><span class="emoji">🐾</span><span class="who-name">Pet grooming</span></div>
+      <div class="who-card"><span class="emoji">🏋️</span><span class="who-name">Personal trainers</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- MVP PLAN -->
+<section class="plan-section">
+  <div class="section-inner">
+    <div class="section-tag reveal">Pricing</div>
+    <h2 class="reveal">Right now —<br>completely free</h2>
+    <p class="section-sub reveal">During beta we charge nothing. You help us improve — we bring your clients back.</p>
+    <div class="single-plan reveal">
+      <div class="plan-price-big">$0</div>
+      <div class="plan-tagline">Free for the entire beta period</div>
+      <ul class="plan-features">
+        <li>Up to 200 clients</li>
+        <li>Personalized WhatsApp messages</li>
+        <li>Stylist & service details in every message</li>
+        <li>Return analytics</li>
+        <li>5-minute setup</li>
+        <li>WhatsApp support</li>
+      </ul>
+      <button class="plan-btn-w" onclick="window.open('/dashboard.html','_blank')">Get free access →</button>
+    </div>
+  </div>
+</section>
+
+<!-- WAITLIST -->
+<section class="waitlist-bg" id="waitlist">
+  <div class="section-inner">
+    <div class="waitlist-inner">
+      <div class="section-tag reveal">Beta access</div>
+      <h2 class="reveal">Leave your contact —<br>we'll reach out first</h2>
+      <p class="section-sub reveal">First 50 salons get personal onboarding and priority support.</p>
+      <div class="wl-form reveal">
+        <a href="/dashboard.html" target="_blank" class="wl-btn">I want to try →</a>
+      </div>
+      <div class="wl-note reveal">No spam. Just one message about your access.</div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <strong>curo.to</strong> &nbsp;·&nbsp; Bringing clients back to your salon &nbsp;·&nbsp; © 2025
+</footer>
+
+<script>
+  // Reveal on scroll
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+  }, { threshold: 0.1 });
+  document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+
+  // Message slider
+  function showMsg(index) {
+    document.querySelectorAll('.msg-phone').forEach((p, i) => {
+      p.style.display = i === index ? 'block' : 'none';
+    });
+    document.querySelectorAll('.msg-tab').forEach((t, i) => {
+      t.classList.toggle('active', i === index);
+    });
+  }
+
+  // Waitlist
+  function submitWL() {
+    const v = document.getElementById('wl-input').value.trim();
+    if (!v) { document.getElementById('wl-input').focus(); return; }
+    document.querySelector('.wl-form').style.display = 'none';
+    document.getElementById('wl-success').style.display = 'block';
+  }
+</script>
+</body>
+</html>

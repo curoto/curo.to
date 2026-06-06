@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="color-scheme" content="light only"/>
+  <title>curo.to — Dashboard</title>
+  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+  <link href="https://api.fontshare.com/v2/css?f[]=satoshi@300,400,500,700,900&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      color-scheme: light only;
+      --ink: #111110;
+      --bg: #F5F3F0;
+      --orange: #E8601C;
+      --muted: #888580;
+      --border: #E2DED9;
+      --card: #FFFFFF;
+    }
+    html, body { background: #fff !important; color: #111 !important; font-family: 'Satoshi', sans-serif; min-height: 100vh; }
+
+    /* ── AUTH SCREENS ── */
+    .auth-screen {
+      min-height: 100vh;
+      background: var(--ink);
+      display: flex; align-items: center; justify-content: center;
+      padding: 24px;
+    }
+    .auth-box {
+      background: #fff;
+      border-radius: 20px;
+      padding: 48px;
+      width: 100%;
+      max-width: 420px;
+    }
+    .auth-logo { font-size: 26px; font-weight: 900; letter-spacing: -1px; margin-bottom: 6px; }
+    .auth-logo span { color: var(--orange); }
+    .auth-sub { font-size: 14px; color: var(--muted); margin-bottom: 32px; }
+    .auth-tabs { display: flex; gap: 0; margin-bottom: 28px; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+    .auth-tab { flex: 1; padding: 10px; text-align: center; font-size: 14px; font-weight: 600; cursor: pointer; border: none; background: transparent; color: var(--muted); transition: all 0.15s; }
+    .auth-tab.active { background: var(--ink); color: #fff; }
+    .form-group { margin-bottom: 14px; }
+    .form-label { font-size: 11px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; color: var(--muted); display: block; margin-bottom: 6px; }
+    .form-input { width: 100%; border: 1px solid var(--border); border-radius: 8px; padding: 11px 14px; font-family: 'Satoshi', sans-serif; font-size: 14px; color: var(--ink); outline: none; background: var(--bg); transition: border-color 0.2s; }
+    .form-input:focus { border-color: var(--ink); background: #fff; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .auth-btn { width: 100%; padding: 13px; background: var(--ink); color: #fff; border: none; border-radius: 10px; font-family: 'Satoshi', sans-serif; font-size: 15px; font-weight: 700; cursor: pointer; margin-top: 8px; transition: opacity 0.2s; letter-spacing: -0.3px; }
+    .auth-btn:hover { opacity: 0.8; }
+    .auth-btn.orange { background: var(--orange); }
+    .auth-error { font-size: 12px; color: var(--orange); margin-top: 10px; text-align: center; min-height: 18px; }
+    .auth-success { font-size: 13px; color: #22A870; margin-top: 10px; text-align: center; }
+
+    /* ── APP LAYOUT ── */
+    .app { display: flex; min-height: 100vh; }
+    .sidebar { width: 240px; flex-shrink: 0; background: var(--ink); display: flex; flex-direction: column; padding: 32px 0; position: fixed; top: 0; left: 0; bottom: 0; z-index: 10; }
+    .sidebar-logo { font-size: 20px; font-weight: 900; letter-spacing: -1px; color: #fff; padding: 0 24px 28px; border-bottom: 1px solid #1E1E1C; }
+    .sidebar-logo span { color: var(--orange); }
+    .sidebar-nav { flex: 1; padding: 20px 12px; display: flex; flex-direction: column; gap: 4px; }
+    .nav-item { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 8px; font-size: 14px; font-weight: 500; color: #555; cursor: pointer; transition: all 0.15s; border: none; background: transparent; width: 100%; text-align: left; }
+    .nav-item:hover { background: #161614; color: #fff; }
+    .nav-item.active { background: rgba(232,96,28,0.12); color: var(--orange); }
+    .nav-icon { font-size: 16px; width: 20px; text-align: center; }
+    .sidebar-bottom { padding: 16px 12px; border-top: 1px solid #1E1E1C; }
+    .salon-badge { display: flex; align-items: center; gap: 10px; padding: 10px 12px; background: #161614; border-radius: 8px; }
+    .salon-avatar { width: 32px; height: 32px; background: var(--orange); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 900; color: #fff; flex-shrink: 0; }
+    .salon-name-display { font-size: 13px; font-weight: 600; color: #fff; }
+    .salon-plan { font-size: 11px; color: #444; }
+    .logout-btn { width: 100%; margin-top: 8px; padding: 8px; background: transparent; border: 1px solid #1E1E1C; border-radius: 8px; color: #444; font-family: 'Satoshi', sans-serif; font-size: 12px; cursor: pointer; transition: all 0.15s; }
+    .logout-btn:hover { border-color: #333; color: #fff; }
+
+    .main { margin-left: 240px; flex: 1; display: flex; flex-direction: column; background: var(--bg); }
+    .topbar { background: #fff; border-bottom: 1px solid var(--border); padding: 16px 32px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 5; }
+    .topbar-title { font-size: 18px; font-weight: 700; letter-spacing: -0.4px; }
+    .topbar-actions { display: flex; gap: 10px; }
+    .btn { display: inline-flex; align-items: center; gap: 6px; padding: 9px 18px; border-radius: 8px; font-family: 'Satoshi', sans-serif; font-size: 13px; font-weight: 600; cursor: pointer; border: none; transition: all 0.15s; letter-spacing: -0.2px; }
+    .btn-primary { background: var(--ink); color: #fff; }
+    .btn-primary:hover { opacity: 0.8; }
+    .btn-orange { background: var(--orange); color: #fff; }
+    .btn-orange:hover { opacity: 0.85; }
+    .btn-ghost { background: transparent; color: var(--ink); border: 1px solid var(--border); }
+    .btn-ghost:hover { border-color: var(--ink); }
+
+    .content { padding: 32px; flex: 1; }
+
+    /* ── STATS ── */
+    .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 32px; }
+    .stat-card { background: #fff; border: 1px solid var(--border); border-radius: 12px; padding: 20px 22px; }
+    .stat-label { font-size: 12px; color: var(--muted); font-weight: 500; margin-bottom: 8px; }
+    .stat-value { font-size: 32px; font-weight: 900; letter-spacing: -1.5px; color: var(--ink); line-height: 1; }
+    .stat-sub { font-size: 12px; color: var(--muted); margin-top: 4px; }
+    .stat-card.orange { border-color: rgba(232,96,28,0.3); }
+    .stat-card.orange .stat-value { color: var(--orange); }
+
+    /* ── TABLE ── */
+    .table-section { background: #fff; border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+    .table-header { padding: 18px 24px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+    .table-title { font-size: 15px; font-weight: 700; letter-spacing: -0.3px; }
+    .search-input { border: 1px solid var(--border); border-radius: 8px; padding: 8px 14px; font-family: 'Satoshi', sans-serif; font-size: 13px; color: var(--ink); outline: none; width: 220px; background: var(--bg); }
+    .search-input:focus { border-color: var(--ink); }
+    .search-input::placeholder { color: var(--muted); }
+    table { width: 100%; border-collapse: collapse; }
+    thead th { padding: 10px 16px; text-align: left; font-size: 11px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; color: var(--muted); border-bottom: 1px solid var(--border); background: var(--bg); white-space: nowrap; }
+    tbody tr { border-bottom: 1px solid var(--border); transition: background 0.1s; cursor: pointer; }
+    tbody tr:last-child { border-bottom: none; }
+    tbody tr:hover { background: #FAFAF8; }
+    tbody td { padding: 13px 16px; font-size: 13px; color: var(--ink); }
+    .td-name { font-weight: 600; }
+    .td-muted { color: var(--muted); }
+
+    .badge { display: inline-flex; align-items: center; gap: 5px; padding: 3px 10px; border-radius: 100px; font-size: 11px; font-weight: 600; white-space: nowrap; }
+    .badge-waiting { background: #FEF3C7; color: #92400E; }
+    .badge-sent { background: #DBEAFE; color: #1E40AF; }
+    .badge-returned { background: #D1FAE5; color: #065F46; }
+    .badge-dot { width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0; }
+    .badge-waiting .badge-dot { background: #92400E; }
+    .badge-sent .badge-dot { background: #1E40AF; }
+    .badge-returned .badge-dot { background: #065F46; }
+
+    /* ── MODAL ── */
+    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 100; align-items: center; justify-content: center; padding: 24px; }
+    .modal-overlay.open { display: flex; }
+    .modal { background: #fff; border-radius: 16px; padding: 32px; width: 100%; max-width: 480px; box-shadow: 0 24px 60px rgba(0,0,0,0.15); max-height: 90vh; overflow-y: auto; }
+    .modal-title { font-size: 20px; font-weight: 900; letter-spacing: -0.5px; margin-bottom: 24px; }
+    .modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 24px; }
+
+    /* ── EMPTY / LOADING ── */
+    .loading { display: flex; align-items: center; justify-content: center; padding: 60px; color: var(--muted); font-size: 14px; gap: 10px; }
+    .spinner { width: 18px; height: 18px; border: 2px solid var(--border); border-top-color: var(--ink); border-radius: 50%; animation: spin 0.7s linear infinite; flex-shrink: 0; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .empty { padding: 60px; text-align: center; }
+    .empty-icon { font-size: 40px; margin-bottom: 16px; }
+    .empty-title { font-size: 16px; font-weight: 700; margin-bottom: 8px; }
+    .empty-sub { font-size: 14px; color: var(--muted); margin-bottom: 24px; }
+
+    /* ── TOAST ── */
+    .toast { position: fixed; bottom: 24px; right: 24px; background: var(--ink); color: #fff; padding: 12px 20px; border-radius: 10px; font-size: 13px; font-weight: 500; transform: translateY(80px); opacity: 0; transition: all 0.3s; z-index: 200; max-width: 320px; }
+    .toast.show { transform: translateY(0); opacity: 1; }
+
+    /* ── CSV IMPORT ── */
+    .csv-zone { border: 2px dashed var(--border); border-radius: 10px; padding: 32px; text-align: center; cursor: pointer; transition: border-color 0.2s; }
+    .csv-zone:hover { border-color: var(--ink); }
+    .csv-zone-text { font-size: 14px; color: var(--muted); }
+    .csv-zone-sub { font-size: 12px; color: var(--subtle, #C8C4BE); margin-top: 4px; }
+
+    /* ── STATUS PILL SELECT ── */
+    .status-select { border: 1px solid var(--border); border-radius: 8px; padding: 10px 14px; font-family: 'Satoshi', sans-serif; font-size: 14px; color: var(--ink); outline: none; background: var(--bg); cursor: pointer; width: 100%; }
+
+    @media (max-width: 768px) {
+      .sidebar { display: none; }
+      .main { margin-left: 0; }
+      .stats-grid { grid-template-columns: repeat(2, 1fr); }
+      .content { padding: 20px; }
+      .topbar { padding: 14px 20px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- AUTH -->
+<div id="authScreen" class="auth-screen">
+  <div class="auth-box">
+    <div class="auth-logo">curo<span>.</span>to</div>
+    <div class="auth-sub">Your client base. Your retention.</div>
+
+    <div class="auth-tabs">
+      <button class="auth-tab active" onclick="switchTab('login')">Sign in</button>
+      <button class="auth-tab" onclick="switchTab('register')">Register</button>
+    </div>
+
+    <!-- LOGIN -->
+    <div id="loginForm">
+      <div class="form-group">
+        <label class="form-label">Email</label>
+        <input class="form-input" type="email" id="loginEmail" placeholder="salon@email.com"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Password</label>
+        <input class="form-input" type="password" id="loginPassword" placeholder="••••••••"/>
+      </div>
+      <button class="auth-btn" onclick="doLogin()">Sign in →</button>
+      <div class="auth-error" id="loginError"></div>
+    </div>
+
+    <!-- REGISTER -->
+    <div id="registerForm" style="display:none;">
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Salon name *</label>
+          <input class="form-input" type="text" id="regSalon" placeholder="Mira Studio"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Owner name</label>
+          <input class="form-input" type="text" id="regOwner" placeholder="Anna"/>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Email *</label>
+        <input class="form-input" type="email" id="regEmail" placeholder="salon@email.com"/>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Password *</label>
+          <input class="form-input" type="password" id="regPassword" placeholder="min 6 chars"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">WhatsApp</label>
+          <input class="form-input" type="tel" id="regWhatsapp" placeholder="+972..."/>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">City</label>
+        <input class="form-input" type="text" id="regCity" placeholder="Tel Aviv"/>
+      </div>
+      <button class="auth-btn orange" onclick="doRegister()">Create account →</button>
+      <div class="auth-error" id="registerError"></div>
+    </div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="appScreen" class="app" style="display:none;">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">curo<span>.</span>to</div>
+    <nav class="sidebar-nav">
+      <button class="nav-item active" onclick="showPage('clients', this)">
+        <span class="nav-icon">👥</span> Clients
+      </button>
+      <button class="nav-item" onclick="showPage('messages', this)">
+        <span class="nav-icon">💬</span> Messages
+      </button>
+      <button class="nav-item" onclick="showPage('analytics', this)">
+        <span class="nav-icon">📊</span> Analytics
+      </button>
+    </nav>
+    <div class="sidebar-bottom">
+      <div class="salon-badge">
+        <div class="salon-avatar" id="salonAvatarEl">M</div>
+        <div>
+          <div class="salon-name-display" id="salonNameEl">My Salon</div>
+          <div class="salon-plan">Beta · Free</div>
+        </div>
+      </div>
+      <button class="logout-btn" onclick="doLogout()">Sign out</button>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+    <div class="topbar">
+      <div class="topbar-title" id="pageTitle">Clients</div>
+      <div class="topbar-actions">
+        <button class="btn btn-ghost" onclick="loadClients()">↻ Refresh</button>
+        <button class="btn btn-ghost" onclick="openImportModal()">↑ Import CSV</button>
+        <button class="btn btn-orange" onclick="openAddModal()">+ Add client</button>
+      </div>
+    </div>
+
+    <div class="content" id="mainContent">
+      <!-- Stats -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-label">Total clients</div>
+          <div class="stat-value" id="statTotal">—</div>
+          <div class="stat-sub">in your base</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Waiting</div>
+          <div class="stat-value" id="statWaiting">—</div>
+          <div class="stat-sub">ready to message</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Messages sent</div>
+          <div class="stat-value" id="statSent">—</div>
+          <div class="stat-sub">this month</div>
+        </div>
+        <div class="stat-card orange">
+          <div class="stat-label">Returned</div>
+          <div class="stat-value" id="statReturned">—</div>
+          <div class="stat-sub">clients came back ✓</div>
+        </div>
+      </div>
+
+      <!-- Table -->
+      <div class="table-section">
+        <div class="table-header">
+          <div class="table-title">Client base</div>
+          <input class="search-input" type="text" placeholder="Search clients..." id="searchInput" oninput="filterClients()"/>
+        </div>
+        <div id="tableContainer">
+          <div class="loading"><div class="spinner"></div> Loading...</div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- ADD CLIENT MODAL -->
+<div class="modal-overlay" id="addModal">
+  <div class="modal">
+    <div class="modal-title" id="modalTitle">Add client</div>
+    <input type="hidden" id="editClientId"/>
+    <div class="form-group">
+      <label class="form-label">Client name *</label>
+      <input class="form-input" type="text" id="fName" placeholder="Sarah Johnson"/>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">WhatsApp *</label>
+        <input class="form-input" type="tel" id="fPhone" placeholder="+972501234567"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Service</label>
+        <input class="form-input" type="text" id="fService" placeholder="Haircut, balayage..."/>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Last visit</label>
+        <input class="form-input" type="date" id="fLastVisit"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Next visit</label>
+        <input class="form-input" type="date" id="fNextVisit"/>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Stylist</label>
+      <input class="form-input" type="text" id="fStylist" placeholder="Anna"/>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Status</label>
+      <select class="status-select" id="fStatus">
+        <option value="Waiting">⏳ Waiting — ready to message</option>
+        <option value="Sent">💬 Sent — message sent</option>
+        <option value="Returned">✅ Returned — client came back</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Notes</label>
+      <input class="form-input" type="text" id="fNotes" placeholder="Any notes about this client..."/>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal('addModal')">Cancel</button>
+      <button class="btn btn-orange" id="saveClientBtn" onclick="saveClient()">Add client →</button>
+    </div>
+  </div>
+</div>
+
+<!-- IMPORT CSV MODAL -->
+<div class="modal-overlay" id="importModal">
+  <div class="modal">
+    <div class="modal-title">Import clients from CSV</div>
+    <p style="font-size:13px; color:var(--muted); margin-bottom:20px; line-height:1.6;">
+      CSV must have columns: <strong>client_name, phone, service, stylist, last_visit, next_visit, status</strong><br>
+      Date format: YYYY-MM-DD &nbsp;|&nbsp; Status: Waiting / Sent / Returned
+    </p>
+    <div class="csv-zone" onclick="document.getElementById('csvFile').click()">
+      <div style="font-size:32px; margin-bottom:8px;">📂</div>
+      <div class="csv-zone-text">Click to select CSV file</div>
+      <div class="csv-zone-sub">or drag and drop here</div>
+      <input type="file" id="csvFile" accept=".csv" style="display:none" onchange="handleCSV(event)"/>
+    </div>
+    <div id="csvPreview" style="margin-top:16px;"></div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal('importModal')">Cancel</button>
+      <button class="btn btn-orange" id="importBtn" onclick="importCSV()" style="display:none;">Import clients →</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+  // ── SUPABASE INIT ──
+  const { createClient } = supabase;
+  const sb = createClient(
+    'https://ykqascnrsbgtysequikf.supabase.co',
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlrcWFzY25yc2JndHlzZXF1aWtmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA2NzUzMDQsImV4cCI6MjA5NjI1MTMwNH0.EwcpXdDosHL81zfTxvy1B0VaA_XUfspPLwgh08lmjQs'
+  );
+
+  let currentUser = null;
+  let currentSalon = null;
+  let allClients = [];
+  let csvData = [];
+
+  // ── CHECK SESSION ──
+  async function checkSession() {
+    const { data: { session } } = await sb.auth.getSession();
+    if (session) {
+      currentUser = session.user;
+      await loadSalonProfile();
+      showApp();
+    }
+  }
+  checkSession();
+
+  // ── AUTH TAB SWITCH ──
+  function switchTab(tab) {
+    document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
+    event.target.classList.add('active');
+    document.getElementById('loginForm').style.display = tab === 'login' ? 'block' : 'none';
+    document.getElementById('registerForm').style.display = tab === 'register' ? 'block' : 'none';
+    document.getElementById('loginError').textContent = '';
+    document.getElementById('registerError').textContent = '';
+  }
+
+  // ── LOGIN ──
+  async function doLogin() {
+    const email = document.getElementById('loginEmail').value.trim();
+    const password = document.getElementById('loginPassword').value;
+    if (!email || !password) { setError('loginError', 'Please fill all fields'); return; }
+
+    const { data, error } = await sb.auth.signInWithPassword({ email, password });
+    if (error) { setError('loginError', error.message); return; }
+    currentUser = data.user;
+    await loadSalonProfile();
+    showApp();
+  }
+
+  // ── REGISTER ──
+  async function doRegister() {
+    const salon = document.getElementById('regSalon').value.trim();
+    const email = document.getElementById('regEmail').value.trim();
+    const password = document.getElementById('regPassword').value;
+    if (!salon || !email || !password) { setError('registerError', 'Please fill required fields'); return; }
+    if (password.length < 6) { setError('registerError', 'Password must be at least 6 characters'); return; }
+
+    const { data, error } = await sb.auth.signUp({ email, password });
+    if (error) { setError('registerError', error.message); return; }
+
+    currentUser = data.user;
+
+    // Create salon profile
+    const { error: salonError } = await sb.from('salons').insert({
+      id: currentUser.id,
+      salon_name: salon,
+      owner_name: document.getElementById('regOwner').value.trim(),
+      whatsapp: document.getElementById('regWhatsapp').value.trim(),
+      city: document.getElementById('regCity').value.trim(),
+    });
+    if (salonError) console.error(salonError);
+
+    await loadSalonProfile();
+    showApp();
+  }
+
+  // ── LOGOUT ──
+  async function doLogout() {
+    await sb.auth.signOut();
+    currentUser = null; currentSalon = null; allClients = [];
+    document.getElementById('appScreen').style.display = 'none';
+    document.getElementById('authScreen').style.display = 'flex';
+  }
+
+  // ── LOAD SALON ──
+  async function loadSalonProfile() {
+    const { data } = await sb.from('salons').select('*').eq('id', currentUser.id).single();
+    currentSalon = data;
+    if (data) {
+      document.getElementById('salonNameEl').textContent = data.salon_name;
+      document.getElementById('salonAvatarEl').textContent = data.salon_name[0].toUpperCase();
+    }
+  }
+
+  // ── SHOW APP ──
+  function showApp() {
+    document.getElementById('authScreen').style.display = 'none';
+    document.getElementById('appScreen').style.display = 'flex';
+    loadClients();
+  }
+
+  // ── LOAD CLIENTS ──
+  async function loadClients() {
+    document.getElementById('tableContainer').innerHTML = '<div class="loading"><div class="spinner"></div> Loading clients...</div>';
+    const { data, error } = await sb.from('clients').select('*').eq('salon_id', currentUser.id).order('created_at', { ascending: false });
+    if (error) {
+      document.getElementById('tableContainer').innerHTML = `<div class="empty"><div class="empty-icon">⚠️</div><div class="empty-title">Error loading clients</div><div class="empty-sub">${error.message}</div></div>`;
+      return;
+    }
+    allClients = data || [];
+    renderTable(allClients);
+    updateStats(allClients);
+  }
+
+  // ── RENDER TABLE ──
+  function renderTable(clients) {
+    if (!clients.length) {
+      document.getElementById('tableContainer').innerHTML = `
+        <div class="empty">
+          <div class="empty-icon">👥</div>
+          <div class="empty-title">No clients yet</div>
+          <div class="empty-sub">Add your first client or import a CSV file</div>
+          <button class="btn btn-orange" onclick="openAddModal()">+ Add client</button>
+        </div>`;
+      return;
+    }
+
+    const rows = clients.map(c => {
+      const badgeClass = c.status === 'Returned' ? 'badge-returned' : c.status === 'Sent' ? 'badge-sent' : 'badge-waiting';
+      const lastVisit = c.last_visit ? new Date(c.last_visit).toLocaleDateString('en-GB') : '—';
+      const nextVisit = c.next_visit ? new Date(c.next_visit).toLocaleDateString('en-GB') : '—';
+      const isOverdue = c.next_visit && new Date(c.next_visit) < new Date() && c.status === 'Waiting';
+      return `<tr onclick="openEditModal('${c.id}')">
+        <td class="td-name">${c.client_name}${isOverdue ? ' 🔴' : ''}</td>
+        <td class="td-muted">${c.phone}</td>
+        <td>${c.service || '—'}</td>
+        <td class="td-muted">${c.stylist || '—'}</td>
+        <td class="td-muted">${lastVisit}</td>
+        <td class="td-muted" style="${isOverdue ? 'color:var(--orange);font-weight:600;' : ''}">${nextVisit}</td>
+        <td><span class="badge ${badgeClass}"><span class="badge-dot"></span>${c.status}</span></td>
+      </tr>`;
+    }).join('');
+
+    document.getElementById('tableContainer').innerHTML = `
+      <table>
+        <thead><tr>
+          <th>Client</th><th>WhatsApp</th><th>Service</th><th>Stylist</th>
+          <th>Last visit</th><th>Next visit</th><th>Status</th>
+        </tr></thead>
+        <tbody>${rows}</tbody>
+      </table>`;
+  }
+
+  // ── STATS ──
+  function updateStats(clients) {
+    document.getElementById('statTotal').textContent = clients.length;
+    document.getElementById('statWaiting').textContent = clients.filter(c => c.status === 'Waiting').length;
+    document.getElementById('statSent').textContent = clients.filter(c => c.status === 'Sent').length;
+    document.getElementById('statReturned').textContent = clients.filter(c => c.status === 'Returned').length;
+  }
+
+  // ── FILTER ──
+  function filterClients() {
+    const q = document.getElementById('searchInput').value.toLowerCase();
+    renderTable(allClients.filter(c =>
+      [c.client_name, c.phone, c.service, c.stylist].some(v => v && v.toLowerCase().includes(q))
+    ));
+  }
+
+  // ── ADD MODAL ──
+  function openAddModal() {
+    document.getElementById('modalTitle').textContent = 'Add client';
+    document.getElementById('saveClientBtn').textContent = 'Add client →';
+    document.getElementById('editClientId').value = '';
+    ['fName','fPhone','fService','fStylist','fNotes'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById('fStatus').value = 'Waiting';
+    document.getElementById('fLastVisit').value = new Date().toISOString().split('T')[0];
+    document.getElementById('fNextVisit').value = '';
+    document.getElementById('addModal').classList.add('open');
+  }
+
+  // ── EDIT MODAL ──
+  function openEditModal(id) {
+    const c = allClients.find(c => c.id === id);
+    if (!c) return;
+    document.getElementById('modalTitle').textContent = 'Edit client';
+    document.getElementById('saveClientBtn').textContent = 'Save changes →';
+    document.getElementById('editClientId').value = id;
+    document.getElementById('fName').value = c.client_name || '';
+    document.getElementById('fPhone').value = c.phone || '';
+    document.getElementById('fService').value = c.service || '';
+    document.getElementById('fStylist').value = c.stylist || '';
+    document.getElementById('fNotes').value = c.notes || '';
+    document.getElementById('fStatus').value = c.status || 'Waiting';
+    document.getElementById('fLastVisit').value = c.last_visit || '';
+    document.getElementById('fNextVisit').value = c.next_visit || '';
+    document.getElementById('addModal').classList.add('open');
+  }
+
+  function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+  // ── SAVE CLIENT ──
+  async function saveClient() {
+    const name = document.getElementById('fName').value.trim();
+    const phone = document.getElementById('fPhone').value.trim();
+    if (!name || !phone) { showToast('⚠️ Name and phone are required'); return; }
+
+    const payload = {
+      client_name: name,
+      phone,
+      service: document.getElementById('fService').value.trim() || null,
+      stylist: document.getElementById('fStylist').value.trim() || null,
+      last_visit: document.getElementById('fLastVisit').value || null,
+      next_visit: document.getElementById('fNextVisit').value || null,
+      status: document.getElementById('fStatus').value,
+      notes: document.getElementById('fNotes').value.trim() || null,
+    };
+
+    const editId = document.getElementById('editClientId').value;
+    let error;
+
+    if (editId) {
+      ({ error } = await sb.from('clients').update(payload).eq('id', editId));
+    } else {
+      ({ error } = await sb.from('clients').insert({ ...payload, salon_id: currentUser.id }));
+    }
+
+    if (error) { showToast('Error: ' + error.message); return; }
+    closeModal('addModal');
+    showToast(editId ? '✓ Client updated' : '✓ Client added');
+    loadClients();
+  }
+
+  // ── CSV IMPORT ──
+  function openImportModal() {
+    csvData = [];
+    document.getElementById('csvPreview').innerHTML = '';
+    document.getElementById('importBtn').style.display = 'none';
+    document.getElementById('csvFile').value = '';
+    document.getElementById('importModal').classList.add('open');
+  }
+
+  function handleCSV(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = e => {
+      const text = e.target.result;
+      const lines = text.trim().split('\n');
+      const headers = lines[0].split(',').map(h => h.trim().toLowerCase().replace(/"/g, ''));
+      csvData = lines.slice(1).filter(l => l.trim()).map(line => {
+        const vals = line.split(',').map(v => v.trim().replace(/"/g, ''));
+        const obj = {};
+        headers.forEach((h, i) => obj[h] = vals[i] || '');
+        return obj;
+      });
+      document.getElementById('csvPreview').innerHTML = `
+        <div style="font-size:13px; color:var(--muted); margin-bottom:8px;">Preview: ${csvData.length} clients found</div>
+        <div style="background:var(--bg); border-radius:8px; padding:12px; font-size:12px; color:var(--muted); max-height:120px; overflow-y:auto;">
+          ${csvData.slice(0,5).map(r => `<div>${r.client_name || r.name || '?'} — ${r.phone || '?'}</div>`).join('')}
+          ${csvData.length > 5 ? `<div>...and ${csvData.length - 5} more</div>` : ''}
+        </div>`;
+      document.getElementById('importBtn').style.display = 'block';
+    };
+    reader.readAsText(file);
+  }
+
+  async function importCSV() {
+    if (!csvData.length) return;
+    const records = csvData.map(r => ({
+      salon_id: currentUser.id,
+      client_name: r.client_name || r.name || 'Unknown',
+      phone: r.phone || r.whatsapp || '',
+      service: r.service || null,
+      stylist: r.stylist || null,
+      last_visit: r.last_visit || null,
+      next_visit: r.next_visit || null,
+      status: ['Waiting','Sent','Returned'].includes(r.status) ? r.status : 'Waiting',
+      notes: r.notes || null,
+    }));
+
+    const { error } = await sb.from('clients').insert(records);
+    if (error) { showToast('Error: ' + error.message); return; }
+    closeModal('importModal');
+    showToast(`✓ ${records.length} clients imported`);
+    loadClients();
+  }
+
+  // ── PAGES ──
+  function showPage(page, el) {
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    el.classList.add('active');
+    document.getElementById('pageTitle').textContent = page.charAt(0).toUpperCase() + page.slice(1);
+    if (page === 'clients') loadClients();
+    else if (page === 'analytics') showAnalytics();
+    else if (page === 'messages') showMessages();
+  }
+
+  function showAnalytics() {
+    const returned = allClients.filter(c => c.status === 'Returned').length;
+    const total = allClients.length;
+    const rate = total ? Math.round((returned / total) * 100) : 0;
+    document.getElementById('tableContainer').innerHTML = `
+      <div style="padding:40px;">
+        <div style="display:grid; grid-template-columns:repeat(2,1fr); gap:20px; max-width:600px;">
+          <div style="background:var(--bg); border-radius:12px; padding:28px; text-align:center;">
+            <div style="font-size:48px; font-weight:900; letter-spacing:-2px; color:var(--orange);">${rate}%</div>
+            <div style="font-size:13px; color:var(--muted); margin-top:6px;">Return rate</div>
+          </div>
+          <div style="background:var(--bg); border-radius:12px; padding:28px; text-align:center;">
+            <div style="font-size:48px; font-weight:900; letter-spacing:-2px;">${returned}</div>
+            <div style="font-size:13px; color:var(--muted); margin-top:6px;">Clients returned</div>
+          </div>
+        </div>
+      </div>`;
+  }
+
+  function showMessages() {
+    const waiting = allClients.filter(c => c.status === 'Waiting' && c.phone);
+    document.getElementById('tableContainer').innerHTML = waiting.length ? `
+      <div style="padding:24px;">
+        <p style="font-size:13px; color:var(--muted); margin-bottom:16px;">${waiting.length} clients ready to message</p>
+        ${waiting.map(c => `
+          <div style="display:flex; align-items:center; justify-content:space-between; padding:14px 0; border-bottom:1px solid var(--border);">
+            <div>
+              <div style="font-weight:600; font-size:14px;">${c.client_name}</div>
+              <div style="font-size:12px; color:var(--muted);">${c.phone} · ${c.service || 'No service'}</div>
+            </div>
+            <a href="https://wa.me/${c.phone.replace(/\D/g,'')}?text=Hi ${encodeURIComponent(c.client_name)}! 👋 It's been a while since your last ${c.service || 'visit'}. Want to book this week? 😊" target="_blank" class="btn btn-orange" style="font-size:12px; padding:7px 14px; text-decoration:none;">
+              Send via WhatsApp
+            </a>
+          </div>`).join('')}
+      </div>` : '<div class="empty"><div class="empty-icon">✅</div><div class="empty-title">No clients waiting</div><div class="empty-sub">All caught up!</div></div>';
+  }
+
+  // ── TOAST ──
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg; t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 3000);
+  }
+  function setError(id, msg) { document.getElementById(id).textContent = msg; }
+
+  // Enter key support
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Enter') {
+      if (document.getElementById('loginForm').style.display !== 'none' && document.getElementById('authScreen').style.display !== 'none') doLogin();
+    }
+  });
+</script>
+</body>
+</html>
